@@ -46,7 +46,6 @@ client.on('connect', connection => {
   connection.on('error', e => {
     error('Error occurred in connection with map generation service!')
     error(e.toString())
-    retry()
   })
 
   connection.on('close', () => {
@@ -65,7 +64,7 @@ client.on('connect', connection => {
   })
 })
 
-export const getNewMap = async () =>
+export const getNewMap = async (): Promise<IFeed> =>
   new Promise(resolve => {
     currentResolve = resolve
 
