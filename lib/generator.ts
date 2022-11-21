@@ -15,7 +15,6 @@ import {
   WS_URL_MAP_GENERATION,
 } from './config'
 import {IFeed} from './types/feed'
-import {IRoomGenerationProps} from './types/generation'
 import {debug, error, verbose} from './utils/log'
 
 const RETRY_DELAY = 3000

@@ -1,43 +1,25 @@
 import {FATIGUE_LAND, FATIGUE_MOVE, FATIGUE_SWAMP} from './constants/screeps'
 import {IPosition} from './types/common'
-import {sendMap} from './interface'
 import {getNewMap} from './generator'
 import {IFeed} from './types/feed'
 import {EObjectType, ICreep, IObject} from './types/simplified-screeps'
 import {Position} from './utils/position'
-
-export enum ECommand {
-  MOVE = 'move',
-  ATTACK = 'attack',
-}
-
-export type ICommand = ICommandMove | ICommandAttack
-
-export interface ICommandMove {
-  type: ECommand.MOVE
-  payload: IMovePayload
-}
-
-export interface ICommandAttack {
-  type: ECommand.ATTACK
-  payload: IAttackPayload
-}
-
-export interface IMovePayload {
-  sourceId: string
-  direction: DirectionConstant
-}
-
-export interface IAttackPayload {
-  sourceId: string
-  targetId: string
-}
+import {
+  ECommand,
+  ICommand,
+  ICommandAttack,
+  ICommandMove,
+} from './types/commands'
+import {sendMap} from './interface'
 
 let map: IFeed | null = null
 
 export const resetSimulation = async () => {
   map = await getNewMap()
+  sendMap(map)
 }
+
+export const getCurrentMap = () => map
 
 export const getScore = () => {
   const myCreeps = map.objects.filter(
@@ -74,7 +56,7 @@ export const runTick = (commands: ICommand[]) => {
   handleAge()
   decreaseFatigues()
 
-  let candidateMap = JSON.parse(JSON.stringify(sendMap))
+  let candidateMap = JSON.parse(JSON.stringify(map))
 
   for (const command of commands) {
     candidateMap = handleCommand(command, candidateMap)
@@ -85,6 +67,7 @@ export const runTick = (commands: ICommand[]) => {
   }
 
   map = candidateMap
+  sendMap(map)
   return true
 }
 

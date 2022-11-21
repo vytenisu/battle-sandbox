@@ -1,4 +1,4 @@
-import {debug, verbose, warn} from './utils/log'
+import {debug, error, verbose, warn} from './utils/log'
 import {createServer} from 'http'
 import {CONTROLLER_LISTEN_PORT} from './config'
 import {
@@ -8,6 +8,18 @@ import {
   request,
   server as Server,
 } from 'websocket'
+import {
+  EControllerCommand,
+  IControllerCommand,
+  IControllerResponse,
+} from './types/commands'
+import {
+  getCurrentMap,
+  getScore,
+  isConcluded,
+  resetSimulation,
+  runTick,
+} from './simulator'
 
 export const launchController = () => {
   const server = createServer((_, res) => {
@@ -50,7 +62,35 @@ export const launchController = () => {
       const utfMessage = message as IUtf8Message
       debug(utfMessage.utf8Data)
 
-      // await handleMessage(utfMessage.utf8Data, connection)
+      try {
+        let command: IControllerCommand = JSON.parse(utfMessage.utf8Data)
+
+        verbose('Executing command...')
+        const commandSucceeded = await handleCommand(command)
+        const map = getCurrentMap()
+        const score = getScore()
+        const concluded = isConcluded()
+
+        verbose('Command executed!')
+        verbose('Sending results...')
+
+        const result: IControllerResponse = {
+          map,
+          commandSucceeded,
+          score,
+          concluded,
+        }
+
+        const stringResult = JSON.stringify(result)
+
+        debug(stringResult)
+        connection.sendUTF(stringResult)
+
+        verbose('Results sent!')
+      } catch (e) {
+        error('Failed to execute controller command!')
+        error('Reason: ' + e.toString())
+      }
     })
 
     connection.on('close', (reason, description) => {
@@ -60,21 +100,17 @@ export const launchController = () => {
   })
 }
 
-const handleMessage = async (json: string, connection: connection) => {
-  // verbose(`Requesting map from cache (${connection.remoteAddress})`)
-  // let map: IFeed
-  // try {
-  //   const config = JSON.parse(json)
-  //   map = await getMap(config)
-  // } catch (e) {
-  //   error('Failed to retrieve map from cache!')
-  //   error(e.toString())
-  // }
-  // verbose(`Sending map (${connection.remoteAddress})`)
-  // const stringMap = JSON.stringify(map)
-  // debug(stringMap)
-  // connection.sendUTF(stringMap)
-  // verbose(`Map was sent (${connection.remoteAddress})`)
+const handleCommand = async (command: IControllerCommand) => {
+  if (command.type === EControllerCommand.RESET) {
+    verbose('Resetting simulator...')
+    await resetSimulation()
+    verbose('Simulator was reset!')
+    return true
+  } else if (command.type === EControllerCommand.TICK) {
+    return runTick(command.payload)
+  } else {
+    return false
+  }
 }
 
 const allowed = (req: request) => {
