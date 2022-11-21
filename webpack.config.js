@@ -1,7 +1,7 @@
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
-const LicenseWebpackPlugin = require('license-webpack-plugin')
-  .LicenseWebpackPlugin
+const LicenseWebpackPlugin =
+  require('license-webpack-plugin').LicenseWebpackPlugin
 
 const exportedConfig = {
   entry: __dirname + '/index.ts',
@@ -40,6 +40,11 @@ const exportedConfig = {
             },
           },
         ],
+      },
+      {
+        test: /\.json$/,
+        use: ['json-loader'],
+        type: 'javascript/auto',
       },
     ],
   },
