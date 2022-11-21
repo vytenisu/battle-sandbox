@@ -1,7 +1,7 @@
 import {debug, verbose, warn} from './utils/log'
 import {createServer} from 'http'
 import {INTERFACE_LISTEN_PORT} from './config'
-import {connection, Message, request, server as Server} from 'websocket'
+import {connection, request, server as Server} from 'websocket'
 import {IFeed} from './types/feed'
 
 let currentConnection: connection | null = null
@@ -34,7 +34,7 @@ export const launchInterface = () => {
     currentConnection = connection
     verbose(`Accepted interface request (${connection.remoteAddress})`)
 
-    connection.on('message', async (message: Message) => {
+    connection.on('message', async () => {
       warn(`Interface messages are not accepted - this is a read-only feed!`)
     })
 
