@@ -1,3 +1,4 @@
+import {ICommand} from './types/commands'
 import {debug, verbose, warn} from './utils/log'
 import {createServer} from 'http'
 import {INTERFACE_LISTEN_PORT} from './config'
@@ -45,10 +46,12 @@ export const launchInterface = () => {
   })
 }
 
-export const sendMap = (map: IFeed) => {
+export const sendMap = (map: IFeed, commands: ICommand[] = []) => {
   if (currentConnection?.connected) {
     verbose('Sending map feed interface message...')
-    const stringMap = JSON.stringify(map)
+    const clonedMap: IFeed = JSON.parse(JSON.stringify(map))
+    clonedMap.commands = commands
+    const stringMap = JSON.stringify(clonedMap)
     debug(stringMap)
     currentConnection.sendUTF(stringMap)
     verbose('Interface map feed sent!')

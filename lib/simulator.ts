@@ -52,7 +52,7 @@ export const isConcluded = () => {
   return !myFound || !enemyFound
 }
 
-export const runTick = (commands: ICommand[]) => {
+export const runTick = (commands: ICommand[], ignoreBadCommands = false) => {
   handleAge()
   decreaseFatigues()
 
@@ -60,12 +60,14 @@ export const runTick = (commands: ICommand[]) => {
 
   for (const command of commands) {
     if (!handleCommand(command, candidateMap)) {
-      return false
+      if (!ignoreBadCommands) {
+        return false
+      }
     }
   }
 
   map = candidateMap
-  sendMap(map)
+  sendMap(map, commands)
   return true
 }
 
@@ -120,6 +122,10 @@ const handleMoveCommand = (
       objectType === EObjectType.CREEP && id === command.payload.sourceId,
   )
 
+  if (!creep) {
+    return false
+  }
+
   if (creep.fatigue) {
     return false
   }
@@ -139,6 +145,12 @@ const handleMoveCommand = (
   }
 
   if (isWall(targetPosition)) {
+    return false
+  }
+
+  if (
+    referenceMap.objects.find(obj => Position.equal(obj.pos, targetPosition))
+  ) {
     return false
   }
 
@@ -167,6 +179,18 @@ const handleAttackCommand = (
   command: ICommandAttack,
   referenceMap: IFeed,
 ): boolean => {
+  const originalSourceCreep = map.objects.find(
+    obj =>
+      obj.objectType === EObjectType.CREEP &&
+      obj.id === command.payload.sourceId,
+  )
+
+  const originalTargetCreep = map.objects.find(
+    obj =>
+      obj.objectType === EObjectType.CREEP &&
+      obj.id === command.payload.targetId,
+  )
+
   const sourceCreep = referenceMap.objects.find(
     obj =>
       obj.objectType === EObjectType.CREEP &&
@@ -183,7 +207,7 @@ const handleAttackCommand = (
     return false
   }
 
-  if (!Position.near(sourceCreep.pos, targetCreep.pos)) {
+  if (!Position.near(originalSourceCreep.pos, originalTargetCreep.pos)) {
     return false
   }
 

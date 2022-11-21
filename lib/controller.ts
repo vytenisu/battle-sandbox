@@ -102,7 +102,7 @@ const handleCommand = async (command: IControllerCommand) => {
     verbose('Simulator was reset!')
     return true
   } else if (command.type === EControllerCommand.TICK) {
-    return runTick(command.payload)
+    return runTick(command.payload, true)
   } else {
     return false
   }

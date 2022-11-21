@@ -1,9 +1,11 @@
+import {ICommand} from './commands'
 import {IObject} from './simplified-screeps'
 
 export interface IFeed {
   room: IRoom
   objects: IObject[]
   terrain: ITerrainMap
+  commands?: ICommand[]
 }
 
 export interface IRoom {

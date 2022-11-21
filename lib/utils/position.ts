@@ -30,7 +30,11 @@ export class Position {
   }
 
   public static near(a: IPosition, b: IPosition): boolean {
-    return Boolean(Math.abs(a.x - b.x) === 1 || Math.abs(a.y - b.y) === 1)
+    return Boolean(
+      Math.abs(a.x - b.x) <= 1 &&
+        Math.abs(a.y - b.y) <= 1 &&
+        !Position.equal(a, b),
+    )
   }
 
   public static touching(a: IPosition, b: IPosition): boolean {
