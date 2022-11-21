@@ -59,9 +59,7 @@ export const runTick = (commands: ICommand[]) => {
   let candidateMap = JSON.parse(JSON.stringify(map))
 
   for (const command of commands) {
-    candidateMap = handleCommand(command, candidateMap)
-
-    if (candidateMap === false) {
+    if (!handleCommand(command, candidateMap)) {
       return false
     }
   }

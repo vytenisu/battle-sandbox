@@ -1,3 +1,4 @@
+import './lib/constants/global'
 import {connectToMapGeneration} from './lib/generator'
 import {launchController} from './lib/controller'
 import {ELogLevel, info, init} from './lib/utils/log'

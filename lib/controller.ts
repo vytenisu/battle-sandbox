@@ -1,13 +1,7 @@
 import {debug, error, verbose, warn} from './utils/log'
 import {createServer} from 'http'
 import {CONTROLLER_LISTEN_PORT} from './config'
-import {
-  connection,
-  IUtf8Message,
-  Message,
-  request,
-  server as Server,
-} from 'websocket'
+import {IUtf8Message, Message, request, server as Server} from 'websocket'
 import {
   EControllerCommand,
   IControllerCommand,
@@ -90,6 +84,7 @@ export const launchController = () => {
       } catch (e) {
         error('Failed to execute controller command!')
         error('Reason: ' + e.toString())
+        throw e
       }
     })
 
@@ -117,7 +112,8 @@ const allowed = (req: request) => {
   if (
     !req.origin?.includes('127.0.0.1') &&
     !req.origin?.includes('localhost') &&
-    req.remoteAddress !== '::1'
+    req.remoteAddress !== '::1' &&
+    req.remoteAddress !== '::ffff:127.0.0.1'
   ) {
     return false
   } else {
