@@ -13,9 +13,4 @@ info(`by ${packageInfo.author.name}`)
   await connectToMapGeneration()
   launchController()
   launchInterface()
-  // setInterval(() => {
-  //   getNewMap()
-  // }, 7000)
 })()
-
-// TODO: NOT FINISHED
